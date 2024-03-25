@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA_Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, intial-scale=1.0">
+    <title>Stare si Temperatura LED</title>
+    <style> 
+        .pag {
+            text-align: center;
+            margin-top: 50px;
+        }
+        .parag {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .space {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="pag">
+        <h1>Stare si Temperatura LED</h1>
+        <div class="parag">Temperatura curenta este de: <span id="temp">{{ temperature }}</span>grade Celsius</div>
+        <div class="space">Stare LED: <span id="ledState">{{ led_state }}</span></div>
+        <button id="toggleButton">Schimba starea LED-ului</button>
+    </div>
+    
+    <script>
+        //comutare
+        function toggleLED() {
+            fetch('/toggle_led', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("ledState").innerText = data.led_state;
+                });
+        }
+    
+        //buton pentru comutare
+        document.getElementById("toggleButton").addEventListener("click", toggleLED);
+    </script>
+
+</body>
+
+</html>
