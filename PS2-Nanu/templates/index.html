@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PS2-Nanu</title>
+</head>
+<body>
+    <h1>Stare LED</h1>
+    <p id="status">Starea curentă a LED-ului: </p>
+
+    <h1>Temperatura curenta si umiditate</h1>
+    <p id="temperature">Temperatura curenta si umiditate: Așteptând date...</p> 
+
+    <h2>Control LED</h2>
+    <button onclick="sendCommand('on')">Aprinde LED</button>
+    <button onclick="sendCommand('off')">Stinge LED</button>
+	
+	<h1>Mesaje</h1>
+        <label for="message">Message:</label>
+        <input type="text" id="message" name="message">
+        <button onclick="sendMessage()">Send</button>
+	
+    <table>
+        <thead>
+            <tr>
+                <th>Mesaje EEPROM</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for message in messages %}
+            <tr>
+                <td>{{ message }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        function sendCommand(action) {
+            fetch('/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=' + action,
+            }).then(response => {
+                if (response.ok) {
+                    document.getElementById('status').innerText = 'Starea curentă a LED-ului: ' + (action === 'on' ? 'APRINS' : 'STINS');
+                }
+            });
+        }
+
+        function getTemperature() {
+            fetch('/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=get_temp_now',
+            }).then(response => {
+                if (response.ok) {
+                    return response.text();
+                }
+            }).then(data => {
+                document.getElementById('temperature').innerText = 'Umiditatea si temperatura curenta: ' + data + 'C';
+            });
+        }
+		
+		function sendMessage() {
+            fetch('/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=send_message&message=' + encodeURIComponent(document.getElementById('message').value),
+            }).then(response => {
+                if (response.ok) {
+                    return response.text();
+                }
+				}).then(() => {
+                document.getElementById('message').value = "";
+            });
+        }
+        setInterval(getTemperature, 5000);
+    </script>
+</body>
+</html>
